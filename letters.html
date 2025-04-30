@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Letter Sounds</title>
+    <style>
+        :root {
+            --bg: #1e1e1e;
+            --fg: #fafafa;
+            --font-size: clamp(4rem, 25vw + 1rem, 18rem);
+            font-family: system-ui, sans-serif;
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: grid;
+            place-items: center;
+            background: var(--bg);
+            color: var(--fg);
+        }
+
+        #letter {
+            font-size: var(--font-size);
+            font-weight: 700;
+            line-height: 1;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        #hint {
+            position: fixed;
+            bottom: 0.75rem;
+            width: 100%;
+            text-align: center;
+            font-size: 1rem;
+            opacity: .4;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="letter">Press a key</div>
+    <div id="hint">Alphabet keys A–Z trigger the sound • Esc clears</div>
+
+    <script>
+        /* -------------------------------------------
+           Letter‑sound trainer – vanilla JS, no deps
+           Works fully client‑side (static hosting OK)
+           -----------------------------------------*/
+
+        // Configure where your recordings live (optional)
+        // Put 26 files named a.ogg … z.ogg inside /sounds/
+        const SOUND_PATH = 'sounds/'      // ″sounds/" or "audio/" etc.
+        const USE_TTS_FALLBACK = true       // speak if file missing
+
+        // Cache <letter> → Audio objects at first use
+        const audioCache = Object.create(null)
+
+        // Vowel/consonant phonetic spellings for TTS (simple)
+        const SPEAK_MAP = {
+            A: 'a as in apple', B: 'b', C: 'k', D: 'd', E: 'e as in elephant',
+            F: 'f', G: 'g', H: 'h', I: 'i as in igloo', J: 'j', K: 'k',
+            L: 'l', M: 'm', N: 'n', O: 'o as in octopus', P: 'p', Q: 'q',
+            R: 'r', S: 's', T: 't', U: 'u as in umbrella', V: 'v',
+            W: 'w', X: 'x', Y: 'y', Z: 'z'
+        }
+
+        const letterEl = document.getElementById('letter')
+
+        window.addEventListener('keydown', async (e) => {
+            // Ignore if key is longer than one char (e.g., Shift, ArrowLeft)
+            if (e.key.length !== 1) {
+                if (e.key === 'Escape') letterEl.textContent = ''
+                return
+            }
+            const letter = e.key.toUpperCase()
+            if (!/^[A-Z]$/.test(letter)) return
+
+            // Display
+            letterEl.textContent = letter
+
+            // Play recorded audio if available, else TTS fallback
+            try {
+                await playLetter(letter)
+            } catch (err) {
+                console.error(err)
+            }
+        })
+
+        async function playLetter(letter) {
+            // Recorded sound first
+            const path = `${SOUND_PATH}${letter.toLowerCase()}.ogg`
+            let audio = audioCache[letter]
+            if (!audio) {
+                // Check if the file exists by attempting to fetch HEAD
+                try {
+                    const resp = await fetch(path, { method: 'HEAD' })
+                    if (resp.ok) {
+                        audio = new Audio(path)
+                        audioCache[letter] = audio
+                    }
+                } catch (_) {
+                    /* network/file missing */
+                }
+            }
+
+            if (audio) {
+                audio.currentTime = 0
+                await audio.play()
+                return
+            }
+
+            if (USE_TTS_FALLBACK && 'speechSynthesis' in window) {
+                const utter = new SpeechSynthesisUtterance(SPEAK_MAP[letter] || letter)
+                utter.rate = 0.8
+                window.speechSynthesis.cancel() // stop any previous speech
+                window.speechSynthesis.speak(utter)
+            }
+        }
+    </script>
+</body>
+
+</html>
