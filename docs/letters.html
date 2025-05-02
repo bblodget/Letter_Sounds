@@ -6,9 +6,16 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Letter Sounds</title>
     <style>
+        @font-face {
+            font-family: 'DNealian';
+            src: url('https://cdn.jsdelivr.net/gh/educatorstechnology/educational-fonts@master/DNealian/DNealian.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         :root {
-            --bg: #1e1e1e;
-            --fg: #fafafa;
+            --bg: #ffffff;
+            --fg: #000000;
             --font-size: clamp(4rem, 25vw + 1rem, 18rem);
             font-family: system-ui, sans-serif;
         }
@@ -32,6 +39,8 @@
             line-height: 1;
             user-select: none;
             pointer-events: none;
+            font-family: 'DNealian', cursive;
+            text-transform: lowercase;
         }
 
         #hint {
@@ -46,7 +55,7 @@
 </head>
 
 <body>
-    <div id="letter">Press a key</div>
+    <div id="letter">press a key</div>
     <div id="hint">Alphabet keys A–Z trigger the sound • Esc clears</div>
 
     <script>
@@ -65,11 +74,11 @@
 
         // Vowel/consonant phonetic spellings for TTS (simple)
         const SPEAK_MAP = {
-            A: 'a as in apple', B: 'b', C: 'k', D: 'd', E: 'e as in elephant',
-            F: 'f', G: 'g', H: 'h', I: 'i as in igloo', J: 'j', K: 'k',
-            L: 'l', M: 'm', N: 'n', O: 'o as in octopus', P: 'p', Q: 'q',
-            R: 'r', S: 's', T: 't', U: 'u as in umbrella', V: 'v',
-            W: 'w', X: 'x', Y: 'y', Z: 'z'
+            A: 'ah', B: 'buh', C: 'kuh', D: 'duh', E: 'eh',
+            F: 'fuh', G: 'guh', H: 'huh', I: 'ih', J: 'juh',
+            L: 'luh', M: 'muh', N: 'nuh', O: 'oh', P: 'puh',
+            Q: 'kwuh', R: 'ruh', S: 'sss', T: 'tuh', U: 'uh',
+            V: 'vuh', W: 'wuh', X: 'ks', Y: 'yuh', Z: 'zzz'
         }
 
         const letterEl = document.getElementById('letter')
@@ -84,7 +93,7 @@
             if (!/^[A-Z]$/.test(letter)) return
 
             // Display
-            letterEl.textContent = letter
+            letterEl.textContent = letter.toLowerCase()
 
             // Play recorded audio if available, else TTS fallback
             try {
