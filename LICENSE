@@ -111,9 +111,9 @@ menu, a prominent item in the list meets this criterion.
 
   1. Source Code.
 
-  The "source code" for a work means the preferred form of the work for
-making modifications to it.  "Object code" means any non-source form of a
-work.
+  The "source code" for a work means the preferred form of the work
+for making modifications to it.  "Object code" means any non-source
+form of a work.
 
   A "Standard Interface" means an interface that either is an official
 standard defined by a recognized standards body, or, in the case of
@@ -671,4 +671,4 @@ into proprietary programs.  If your program is a subroutine library, you
 may consider it more useful to permit linking proprietary applications with
 the library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
-<https://www.gnu.org/licenses/why-not-lgpl.html>. 
+<https://www.gnu.org/licenses/why-not-lgpl.html>.
