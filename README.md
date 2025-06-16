@@ -35,7 +35,7 @@ The application uses `.ogg` format sound files for each letter. See the [sounds/
 - Responsive design using CSS Grid and modern viewport units
 - Multiple font options for letter display:
   - Andika: A free and open font family designed for literacy and language learning, supporting Latin, Cyrillic, and Greek scripts. [Source](https://software.sil.org/andika/)
-  - Lexend: A variable font designed to improve reading performance and reduce visual stress. [Source](https://www.lexend.com/)
+  - Lexend: A variable font designed to improve reading performance and reduce visual stress. [Source](https://www.lexend.com/) | [Download](https://fonts.google.com/specimen/Lexend)
   - Teachers: A variable font designed specifically for educational materials and literacy learning. [Source](https://fonts.google.com/specimen/Teachers)
 
 All fonts are open source and licensed under the Open Font License (OFL).
