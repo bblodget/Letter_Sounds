@@ -25,9 +25,46 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     <title>Letter Sounds</title>
     <style>
         @font-face {
-            font-family: 'DNealian';
-            src: url('https://cdn.jsdelivr.net/gh/educatorstechnology/educational-fonts@master/DNealian/DNealian.woff2') format('woff2');
+            font-family: 'Andika';
+            src: url('fonts/Andika-7.000/web/Andika-Regular.woff2') format('woff2'),
+                url('fonts/Andika-7.000/web/Andika-Regular.woff') format('woff');
             font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Andika';
+            src: url('fonts/Andika-7.000/web/Andika-Bold.woff2') format('woff2'),
+                url('fonts/Andika-7.000/web/Andika-Bold.woff') format('woff');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Lexend';
+            src: url('fonts/Lexend/static/Lexend-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Lexend';
+            src: url('fonts/Lexend/static/Lexend-Bold.ttf') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Teachers';
+            src: url('fonts/Teachers/Teachers-Regular.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'Teachers';
+            src: url('fonts/Teachers/Teachers-Bold.ttf') format('truetype');
+            font-weight: bold;
             font-style: normal;
         }
 
@@ -35,7 +72,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             --bg: #ffffff;
             --fg: #000000;
             --font-size: clamp(4rem, 25vw + 1rem, 18rem);
-            font-family: system-ui, sans-serif;
+            font-family: var(--current-font, 'Andika'), system-ui, sans-serif;
         }
 
         html,
@@ -57,7 +94,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             line-height: 1;
             user-select: none;
             pointer-events: none;
-            font-family: 'DNealian', cursive;
+            font-family: var(--current-font, 'Andika'), system-ui, sans-serif;
             text-transform: lowercase;
         }
 
@@ -69,11 +106,66 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             font-size: 1rem;
             opacity: .4;
         }
+
+        #font-selector {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        #font-selector:hover {
+            border-color: #666;
+        }
+
+        .screen {
+            display: none;
+            position: fixed;
+            inset: 0;
+            place-items: center;
+        }
+
+        .screen.active {
+            display: grid;
+        }
+
+        #home-screen {
+            gap: 2rem;
+        }
+
+        #home-message {
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        #letter-screen {
+            display: none;
+        }
+
+        #letter-screen.active {
+            display: grid;
+        }
     </style>
 </head>
 
 <body>
-    <div id="letter">press a key</div>
+    <div id="home-screen" class="screen active">
+        <div id="home-message">press a key</div>
+        <select id="font-selector">
+            <option value="Andika">Andika</option>
+            <option value="Lexend">Lexend</option>
+            <option value="Teachers">Teachers</option>
+        </select>
+    </div>
+    <div id="letter-screen" class="screen">
+        <div id="letter"></div>
+    </div>
     <div id="hint">Alphabet keys A–Z trigger the sound • Esc clears</div>
 
     <script>
@@ -100,21 +192,56 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         }
 
         const letterEl = document.getElementById('letter')
+        const fontSelector = document.getElementById('font-selector')
+        const homeScreen = document.getElementById('home-screen')
+        const letterScreen = document.getElementById('letter-screen')
+
+        // Load saved font preference
+        const savedFont = localStorage.getItem('preferred-font')
+        if (savedFont) {
+            document.documentElement.style.setProperty('--current-font', savedFont)
+            fontSelector.value = savedFont
+        }
+
+        // Handle font changes
+        fontSelector.addEventListener('change', (e) => {
+            const selectedFont = e.target.value
+            document.documentElement.style.setProperty('--current-font', selectedFont)
+            localStorage.setItem('preferred-font', selectedFont)
+        })
+
+        function showHomeScreen() {
+            homeScreen.classList.add('active')
+            letterScreen.classList.remove('active')
+            letterEl.textContent = ''
+        }
+
+        function showLetterScreen() {
+            homeScreen.classList.remove('active')
+            letterScreen.classList.add('active')
+        }
 
         window.addEventListener('keydown', async (e) => {
-            // Ignore if key is longer than one char (e.g., Shift, ArrowLeft)
-            if (e.key.length !== 1) {
-                if (e.key === 'Escape') letterEl.textContent = ''
+            // Handle Escape key
+            if (e.key === 'Escape') {
+                showHomeScreen()
                 return
             }
+
+            // Ignore if key is longer than one char (e.g., Shift, ArrowLeft)
+            if (e.key.length !== 1) return
+
             const letter = e.key.toUpperCase()
             if (!/^[A-Z]$/.test(letter)) return
 
-            // Display
+            // Show letter screen and display letter
+            showLetterScreen()
             letterEl.textContent = letter.toLowerCase()
 
             // Play recorded audio if available, else TTS fallback
             try {
+                // Add a small delay to ensure the screen transition is complete
+                await new Promise(resolve => setTimeout(resolve, 50))
                 await playLetter(letter)
             } catch (err) {
                 console.error(err)
